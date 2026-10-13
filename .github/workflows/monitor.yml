@@ -1,0 +1,33 @@
+name: Monitoramento de Pressao ao Vivo
+
+on:
+  schedule:
+    # Roda a cada 15 minutos entre 15h e 03h UTC (12h às 00h de Brasília)
+    - cron: '*/15 15-23 * * *'
+    - cron: '*/15 0-3 * * *'
+  workflow_dispatch: # Permite disparar manualmente com 1 clique
+
+jobs:
+  executar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Executar detector
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python main.py
